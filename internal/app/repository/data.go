@@ -2,7 +2,9 @@ package repository
 
 import (
 	"database/sql"
-	"expr_demo/internal/app/model"
+
+	"expr_demo/internal/pkg/model"
+
 	"github.com/google/uuid"
 )
 

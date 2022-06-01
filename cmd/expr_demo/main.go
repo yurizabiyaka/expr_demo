@@ -2,22 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/antonmedv/expr/vm"
 	"log"
 	"time"
 
 	"expr_demo/internal/app/cmdline"
-	"expr_demo/internal/app/model"
 	"expr_demo/internal/app/repository"
+	"expr_demo/internal/pkg/model"
+	"expr_demo/internal/pkg/script_env"
 	"expr_demo/pkg/dbconnect"
 
 	"github.com/antonmedv/expr"
+	"github.com/antonmedv/expr/vm"
 )
-
-type Env struct {
-	Event         model.Auth
-	HistoryEvents []model.Auth
-}
 
 func main() {
 	db, closer, err := dbconnect.Connect()
@@ -46,7 +42,7 @@ func main() {
 		panic(err)
 	} else {
 		if code != nil {
-			compiledExpression, err = expr.Compile(*code, expr.Env(Env{}))
+			compiledExpression, err = expr.Compile(*code, expr.Env(script_env.Create()))
 			if err != nil {
 				panic(err)
 			}
@@ -68,10 +64,9 @@ func main() {
 
 	if compiledExpression != nil {
 		// load environment
-		env := Env{
-			Event:         myModel,
-			HistoryEvents: []model.Auth{},
-		}
+		env := script_env.New(
+			script_env.Event(myModel),
+		)
 		// run script
 		fmt.Println("---------------------------")
 		output, err := expr.Run(compiledExpression, env)
