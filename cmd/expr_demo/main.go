@@ -42,7 +42,7 @@ func main() {
 		panic(err)
 	} else {
 		if code != nil {
-			compiledExpression, err = expr.Compile(*code, expr.Env(script_env.Create()))
+			compiledExpression, err = expr.Compile(*code, expr.Env(script_env.Create(model.Auth{})))
 			if err != nil {
 				panic(err)
 			}
@@ -50,11 +50,11 @@ func main() {
 	}
 
 	myModel := model.Auth{
-		CreatedAt:   created,
-		Account:     cmdline.Account(),
-		AmountCents: cmdline.AmountCents(),
-		POS:         pos,
-		CountryMnem: country,
+		Created_at:   created,
+		Account:      cmdline.Account(),
+		Amount_cents: cmdline.AmountCents(),
+		Pos:          pos,
+		Country:      country,
 	}
 	repo := repository.NewDataRepo(db)
 	if myModel.ID, err = repo.Save(myModel); err != nil {
@@ -65,12 +65,13 @@ func main() {
 	if compiledExpression != nil {
 		// load environment
 		env := script_env.New(
-			script_env.Event(myModel),
+			myModel,
+			script_env.Repo(repo),
 		)
 		// run script
 		fmt.Println("---------------------------")
 		output, err := expr.Run(compiledExpression, env)
-		fmt.Println("---------------------------")
+		fmt.Println("\n---------------------------")
 		if err != nil {
 			panic(err)
 		}

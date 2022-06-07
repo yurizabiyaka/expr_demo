@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	mrand "math/rand"
-	"strings"
 	"sync"
 	"time"
+
+	"expr_demo/pkg/testsupport"
 
 	"github.com/pkg/errors"
 )
@@ -38,7 +39,7 @@ func parseFlags() {
 func Account() string {
 	once.Do(parseFlags)
 	if *accPtr == "" {
-		return fmt.Sprintf("40903810%s", strings.Trim(strings.ReplaceAll(fmt.Sprint(mrand.Perm(11)), " ", ""), "[]"))
+		return testsupport.RandomAccount()
 	}
 	return *accPtr
 }

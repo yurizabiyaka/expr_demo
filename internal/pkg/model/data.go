@@ -7,10 +7,10 @@ import (
 )
 
 type Auth struct {
-	ID          uuid.UUID `db:"id"`
-	CreatedAt   time.Time `db:"created_at"`
-	Account     string    `db:"account"`
-	AmountCents uint64    `db:"amount_cents"`
-	POS         string    `db:"pos"`
-	CountryMnem string    `db:"country"`
+	ID           uuid.UUID `db:"id"`
+	Created_at   time.Time `db:"created_at"`
+	Account      string    `db:"account"`
+	Amount_cents uint64    `db:"amount_cents"`
+	Pos          string    `db:"pos"`
+	Country      string    `db:"country"`
 }
