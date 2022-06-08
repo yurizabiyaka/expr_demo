@@ -71,6 +71,8 @@ func New(event interface{}, opts ...Opts) Environment {
 // Opts modifications
 type Opts func(env *Environment)
 
+//go:generate mockgen -destination=./mocks/data_repo.go -package=mocks . DataRepo
+
 // DataRepo data access
 type DataRepo interface {
 	GetStringsFromData(column, whereDef, havingDef string, eventValues []interface{}) ([]string, error)
