@@ -47,6 +47,7 @@ func Benchmark_CodeRun(b *testing.B) {
 		Repo(repo),
 	)
 	repo.EXPECT().GetStringsFromData(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]string{"RU", "CN"}, nil).AnyTimes()
+	
 	b.StartTimer()
 
 	for i := 0; i < b.N; i++ {

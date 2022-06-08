@@ -58,6 +58,14 @@ func main() {
 		Amount_cents: cmdline.AmountCents(),
 		Pos:          pos,
 		Country:      country,
+		// также можно сделать специальное поле в модели, через которое извлекать данные или использовать предподготовленные списки
+		PosesBlackList: func(a ...interface{}) ([]string, error) {
+			fmt.Println("In PosesBlackList")
+			for i := range a {
+				fmt.Println(a[i])
+			}
+			return []string{"155", "151"}, nil
+		},
 	}
 	repo := repository.NewDataRepo(db)
 	if myModel.ID, err = repo.Save(myModel); err != nil {

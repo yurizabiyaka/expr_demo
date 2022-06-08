@@ -185,7 +185,7 @@ func preparePlaceholders(placeholders *map[string]string, fieldsInPhOrder *[]str
 		}
 		placeholder, ok := "", false
 		// create or pick up a placeholder for the field
-		if placeholder, ok = (*placeholders)[fieldName]; !ok {
+		if _, ok = (*placeholders)[fieldName]; !ok {
 			placeholder = mockPlaceholder + strconv.Itoa(len(*placeholders)+1)
 			(*placeholders)[fieldName] = placeholder
 			*fieldsInPhOrder = append(*fieldsInPhOrder, fieldName)
