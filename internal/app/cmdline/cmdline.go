@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"expr_demo/pkg/testsupport"
+	"github.com/yzabiyaka/expr_demo/pkg/testsupport"
 
 	"github.com/pkg/errors"
 )

@@ -141,8 +141,8 @@ func Test_getSelectExpressions(t *testing.T) {
 	for _, tt := range tests {
 		ttt := tt
 		t.Run(ttt.name, func(t *testing.T) {
-			env := New(model.Auth{})
-			w, h, fields, e := env.getSelectComponents(ttt.a.params...)
+			env := New(make(map[string]interface{}), model.Auth{})
+			w, h, fields, e := getSelectComponents(env, ttt.a.params...)
 			if (e != nil) != ttt.wantErr {
 				t.Errorf("want err %v, got %v", ttt.wantErr, e)
 			}

@@ -5,11 +5,12 @@ import (
 	"log"
 	"time"
 
-	"expr_demo/internal/app/cmdline"
-	"expr_demo/internal/app/repository"
-	"expr_demo/internal/pkg/model"
-	"expr_demo/internal/pkg/script_env"
-	"expr_demo/pkg/dbconnect"
+	"github.com/yzabiyaka/expr_demo/internal/app/cmdline"
+	my_script "github.com/yzabiyaka/expr_demo/internal/app/environment"
+	"github.com/yzabiyaka/expr_demo/internal/app/repository"
+	"github.com/yzabiyaka/expr_demo/internal/pkg/model"
+	"github.com/yzabiyaka/expr_demo/pkg/dbconnect"
+	"github.com/yzabiyaka/expr_demo/pkg/script_env"
 
 	"github.com/antonmedv/expr"
 	"github.com/antonmedv/expr/vm"
@@ -42,7 +43,8 @@ func main() {
 		panic(err)
 	} else {
 		if code != nil {
-			compiledExpression, err = expr.Compile(*code, expr.Env(script_env.Create(model.Auth{})))
+			environment := make(my_script.Environment)
+			compiledExpression, err = expr.Compile(*code, expr.Env(script_env.Init(environment, model.Auth{})))
 			if err != nil {
 				panic(err)
 			}
@@ -65,6 +67,7 @@ func main() {
 	if compiledExpression != nil {
 		// load environment
 		env := script_env.New(
+			make(my_script.Environment),
 			myModel,
 			script_env.Repo(repo),
 		)

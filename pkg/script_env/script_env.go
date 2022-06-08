@@ -39,16 +39,13 @@ var (
 
 */
 
-// Environment expressions env
-type Environment map[string]interface{}
-
 type stringConverter func(s string) string
 
-// Create makes default env
-func Create(event interface{}) Environment {
-	env := Environment{
-		keyEvent: event,
-	}
+type Environment map[string]interface{}
+
+// Init makes default env
+func Init(env map[string]interface{}, event interface{}) Environment {
+	env[keyEvent] = event
 	fields, fieldsIndexes := getFieldNamesAsStringsSlice(event) // in lowercase
 	env[keyFieldNames] = fields                                 // in lowercase
 	env[keyFieldsIndexes] = fieldsIndexes                       // in lowercase
@@ -60,8 +57,8 @@ func Create(event interface{}) Environment {
 }
 
 // New fills environment with values using modification opts
-func New(event interface{}, opts ...Opts) Environment {
-	e := Create(event)
+func New(env map[string]interface{}, event interface{}, opts ...Opts) Environment {
+	e := Init(env, event)
 	for _, opt := range opts {
 		opt(&e)
 	}
@@ -108,7 +105,7 @@ func getMatchers(fieldNames []string) map[string]*regexp.Regexp {
 	return matchers
 }
 
-func (e Environment) getSelectComponents(lst ...interface{}) (whereDef, havingDef string, fieldsInPhOrder []string, err error) {
+func getSelectComponents(e map[string]interface{}, lst ...interface{}) (whereDef, havingDef string, fieldsInPhOrder []string, err error) {
 	fieldsInPhOrder = []string{}
 	placeholders := make(map[string]string) // key is field name, value is placeholder
 	matchers := e[keyFieldNameMatchers].(map[string]*regexp.Regexp)
@@ -138,8 +135,8 @@ func (e Environment) getSelectComponents(lst ...interface{}) (whereDef, havingDe
 	return whereArg, havingArg, fieldsInPhOrder, nil
 }
 
-func (e Environment) getFromRepo(fieldName string, lst ...interface{}) (interface{}, error) {
-	whereDef, havingDef, fieldNames, err := e.getSelectComponents(lst...)
+func GetFromRepo(e map[string]interface{}, fieldName string, lst ...interface{}) (interface{}, error) {
+	whereDef, havingDef, fieldNames, err := getSelectComponents(e, lst...)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot build select")
 	}

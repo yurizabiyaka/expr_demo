@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 
-	"expr_demo/internal/pkg/model"
+	"github.com/yzabiyaka/expr_demo/internal/pkg/model"
 
 	"github.com/google/uuid"
 )
