@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"expr_demo/pkg/script_env/mocks"
-	"expr_demo/pkg/testsupport"
+	"github.com/yzabiyaka/expr_demo/pkg/script_env/mocks"
+	"github.com/yzabiyaka/expr_demo/pkg/testsupport"
 
 	"github.com/antonmedv/expr"
 	"github.com/golang/mock/gomock"
@@ -26,9 +26,10 @@ func Benchmark_CodeRun(b *testing.B) {
 	b.StopTimer()
 
 	code := `e.Pos == '155' and e.Country in COUNTRY( "account==e.Account and pos == e.Pos and country IS NOT NULL","SUM(amount_cents)>3000000 and SUM(amount_cents)<60000000")`
-	compiledExpression, err := expr.Compile(code, expr.Env(Init(make(Environment), auth{})))
+	environment := NewEnvironment(auth{})
+	compiledExpression, err := expr.Compile(code, expr.Env(environment))
 	if err != nil {
-		b.Fatalf("compilation failed")
+		b.Fatalf("compilation failed: %v", err)
 	}
 	myModel := auth{
 		Created_at:   time.Now(),
@@ -40,16 +41,16 @@ func Benchmark_CodeRun(b *testing.B) {
 
 	ctrl := gomock.NewController(b)
 	repo := mocks.NewMockDataRepo(ctrl)
-	env := New(
-		make(Environment),
-		myModel,
+	Setup(
+		&environment,
+		Model(myModel),
 		Repo(repo),
 	)
 	repo.EXPECT().GetStringsFromData(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]string{"RU", "CN"}, nil).AnyTimes()
 	b.StartTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, err := expr.Run(compiledExpression, env)
+		_, err := expr.Run(compiledExpression, environment)
 		if err != nil {
 			b.Fatalf("Unexpected error: %v", err)
 		}

@@ -39,12 +39,13 @@ func main() {
 
 	var code *string
 	var compiledExpression *vm.Program
+	environment := my_script.New(model.Auth{})
+
 	if code, err = cmdline.Rule(); err != nil {
 		panic(err)
 	} else {
 		if code != nil {
-			environment := make(my_script.Environment)
-			compiledExpression, err = expr.Compile(*code, expr.Env(script_env.Init(environment, model.Auth{})))
+			compiledExpression, err = expr.Compile(*code, expr.Env(environment))
 			if err != nil {
 				panic(err)
 			}
@@ -66,14 +67,15 @@ func main() {
 
 	if compiledExpression != nil {
 		// load environment
-		env := script_env.New(
-			make(my_script.Environment),
-			myModel,
+
+		script_env.Setup(
+			&environment,
+			script_env.Model(myModel),
 			script_env.Repo(repo),
 		)
 		// run script
 		fmt.Println("---------------------------")
-		output, err := expr.Run(compiledExpression, env)
+		output, err := expr.Run(compiledExpression, environment)
 		fmt.Println("\n---------------------------")
 		if err != nil {
 			panic(err)

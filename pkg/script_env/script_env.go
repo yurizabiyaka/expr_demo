@@ -41,32 +41,31 @@ var (
 
 type stringConverter func(s string) string
 
-type Environment map[string]interface{}
-
-// Init makes default env
-func Init(env map[string]interface{}, event interface{}) Environment {
-	env[keyEvent] = event
-	fields, fieldsIndexes := getFieldNamesAsStringsSlice(event) // in lowercase
-	env[keyFieldNames] = fields                                 // in lowercase
-	env[keyFieldsIndexes] = fieldsIndexes                       // in lowercase
-	// matchers contain lowercase fields as keys
-	env[keyFieldNameMatchers] = getMatchers(env[keyFieldNames].([]string)) // in lowercase
-	env[keyScriptToSqlConverters] = getScriptToSqlConverters()
-
-	return env
+// Modifier adds fields
+type Modifier interface {
+	AddKey(key string, val interface{})
 }
 
-// New fills environment with values using modification opts
-func New(env map[string]interface{}, event interface{}, opts ...Opts) Environment {
-	e := Init(env, event)
+// Init makes default env
+func Init(e Modifier, event interface{}) {
+	e.AddKey(keyEvent, event)
+	fields, fieldsIndexes := getFieldNamesAsStringsSlice(event) // in lowercase
+	e.AddKey(keyFieldNames, fields)                             // in lowercase
+	e.AddKey(keyFieldsIndexes, fieldsIndexes)                   // in lowercase
+	// matchers contain lowercase fields as keys
+	e.AddKey(keyFieldNameMatchers, getMatchers(fields)) // in lowercase
+	e.AddKey(keyScriptToSqlConverters, getScriptToSqlConverters())
+}
+
+// Setup fills environment with values using modification opts
+func Setup(e Modifier, opts ...Opts) {
 	for _, opt := range opts {
-		opt(&e)
+		opt(e)
 	}
-	return e
 }
 
 // Opts modifications
-type Opts func(env *Environment)
+type Opts func(env Modifier)
 
 //go:generate mockgen -destination=./mocks/data_repo.go -package=mocks . DataRepo
 
@@ -77,8 +76,15 @@ type DataRepo interface {
 
 // Repo fills dao
 func Repo(repo DataRepo) Opts {
-	return func(env *Environment) {
-		(*env)[keyRepo] = repo
+	return func(env Modifier) {
+		env.AddKey(keyRepo, repo)
+	}
+}
+
+// Model fills model
+func Model(model interface{}) Opts {
+	return func(env Modifier) {
+		env.AddKey(keyEvent, model)
 	}
 }
 

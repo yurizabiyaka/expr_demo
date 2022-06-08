@@ -1,11 +1,31 @@
 package script_env
 
 import (
-	"expr_demo/internal/pkg/model"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+// environment environment for test purposes
+type environment map[string]interface{}
+
+// NewEnvironment constructor for test env
+func NewEnvironment(evt interface{}) environment {
+	e := make(environment)
+	Init(&e, evt)
+	return e
+}
+
+// AddKey implements Modifier interface
+func (e *environment) AddKey(key string, val interface{}) {
+	(*e)[key] = val
+}
+
+// COUNTRY is a test method
+func (e environment) COUNTRY(arg0, arg1 interface{}) ([]string, error) {
+	return nil, nil
+}
 
 func Test_getSelectExpressions(t *testing.T) {
 
@@ -138,10 +158,12 @@ func Test_getSelectExpressions(t *testing.T) {
 		},
 	}
 
+	env := NewEnvironment(auth{})
+	Setup(&env, Model(auth{}))
+
 	for _, tt := range tests {
 		ttt := tt
 		t.Run(ttt.name, func(t *testing.T) {
-			env := New(make(map[string]interface{}), model.Auth{})
 			w, h, fields, e := getSelectComponents(env, ttt.a.params...)
 			if (e != nil) != ttt.wantErr {
 				t.Errorf("want err %v, got %v", ttt.wantErr, e)
